@@ -6,33 +6,26 @@
 #define YELLOW_PIN 6
 #define GREEN_PIN 7
 #define MIN_ANGLE 60
-#define MAX_ANGLE 140
+#define MAX_ANGLE 143
 #define NUMBER_OF_SWEEPS 2
-#define TIME_BETWEEN_SWEEPS 20000
+#define WATERING_INTERVAL_MS 60000*15
 
+int pos;
+long time_of_last_watering;
 Servo servo;
 
-int pos = 0;
-boolean squirting = false;
-boolean turning = false;
 void setup() {
-  Serial.begin(9600);
   servo.attach(SERVO_PIN);
   pinMode(SQUIRTER_PIN, OUTPUT);
 }
 void loop() {
-  while(Serial.available() > 0 ) {
-    char data = Serial.read(); 
-    if (data == 'w') {
+  if((millis() - time_of_last_watering) > WATERING_INTERVAL_MS) {
+    for (int i=0; i < NUMBER_OF_SWEEPS; i++){
       water_sweep_once();
     }
+    time_of_last_watering = millis();
   }
-  if ( (millis() % 20000) == 0) {
-    for(int i =0;i< TIME_BETWEEN_SWEEPS; i++) {
-      water_sweep_once();
-    }
-  }
-  delay(20000);
+  delay(100);
 }
 
 void water_sweep_once() {
